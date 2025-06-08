@@ -267,7 +267,8 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     wiki = MarkdownWiki()
 
-    wiki.set_project_directory("./wiki/")
+    # TODO: This only works on development mode.
+    wiki.set_project_directory(os.path.join(os.getcwd(), "wiki/"))
 
     wiki.show()
     sys.exit(app.exec())
