@@ -35,6 +35,7 @@ class WikiTreeView(QTreeView):
 
 class FileSystemNavigator(QWidget):
     status_message = Signal(str)
+    selected_item = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -58,6 +59,7 @@ class FileSystemNavigator(QWidget):
         # Hide columns except name
         for col in range(1, self.model.columnCount()):
             self.tree_view.hideColumn(col)
+        self.tree_view.selectionModel().selectionChanged.connect(self.handle_selection_change)
 
         # Clipboard for cut-paste operations
         self.cut_source_path = None
@@ -68,9 +70,6 @@ class FileSystemNavigator(QWidget):
         # Context menu
         self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree_view.customContextMenuRequested.connect(self.show_context_menu)
-
-    def selection_changed(self, handler):
-        self.tree_view.selectionModel().selectionChanged.connect(handler)
 
     def create_actions(self):
         # New File action
@@ -250,11 +249,11 @@ class FileSystemNavigator(QWidget):
         self.cut_source_path = None
 
     def handle_selection_change(self):
+        """Emits a selected_item event with the selected item's path."""
         path = self.get_selected_path()
         if path:
+            self.selected_item.emit(path)
             self.update_status(f"Selected: {os.path.basename(path)}")
-        else:
-            self.update_status("Ready")
 
     def show_context_menu(self, position):
         menu = QMenu()

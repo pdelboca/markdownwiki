@@ -136,6 +136,7 @@ class MarkdownWiki(QMainWindow):
 
         # Configure file system model and tree view
         self.file_navigator = FileSystemNavigator()
+        self.file_navigator.selected_item.connect(self.open_selected_path)
         sidebar_layout.addWidget(self.file_navigator)
 
         # Create main editor area
@@ -206,15 +207,13 @@ class MarkdownWiki(QMainWindow):
 
         self.status_bar.showMessage(f"Project opened: {directory_path}")
 
-    def open_selected_file(self, index):
+    def open_selected_path(self, path):
         """Open the file selected in the tree view"""
-        file_path = self.fs_model.filePath(index)
-
+        path = Path(path)
         # If it's a directory, just expand/collapse it
-        if self.fs_model.isDir(index):
+        if path.is_dir():
             return
-
-        self.open_file(file_path)
+        self.open_file(path)
 
     def open_file(self, file_path):
         """Open and display a markdown file"""
