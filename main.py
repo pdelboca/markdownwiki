@@ -11,6 +11,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QKeySequence, QFont, QAction
 import re
 
+from file_navigator import FileSystemNavigator
 
 class MarkdownRenderer(QTextBrowser):
     """Widget to render Markdown content"""
@@ -103,31 +104,6 @@ class MarkdownEditor(QTextEdit):
         super().keyPressEvent(event)
 
 
-class WikiTreeView(QTreeView):
-    """Custom TreeView for file navigation with specific keyboard handling"""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-    def keyPressEvent(self, event):
-        """Override keyPressEvent to handle Enter key for opening files/folders"""
-        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
-            index = self.currentIndex()
-            if index.isValid():
-                if self.isExpanded(index):
-                    self.collapse(index)
-                else:
-                    self.expand(index)
-
-                # If it's a file (not a directory), also emit activated signal
-                model = self.model()
-                if not model.isDir(index):
-                    self.activated.emit(index)
-                return
-
-        super().keyPressEvent(event)
-
-
 class MarkdownWiki(QMainWindow):
     """Main application window for Markdown Wiki"""
 
@@ -159,19 +135,8 @@ class MarkdownWiki(QMainWindow):
         sidebar_layout.setContentsMargins(0, 0, 0, 0)
 
         # Configure file system model and tree view
-        self.fs_model = QFileSystemModel()
-        self.fs_model.setNameFilters(["*.md"])
-        self.fs_model.setNameFilterDisables(False)
-
-        self.tree_view = WikiTreeView()
-        self.tree_view.setModel(self.fs_model)
-        self.tree_view.setHeaderHidden(True)
-        # Hide columns except name
-        for col in range(1, self.fs_model.columnCount()):
-            self.tree_view.hideColumn(col)
-        self.tree_view.activated.connect(self.open_selected_file)
-
-        sidebar_layout.addWidget(self.tree_view)
+        self.file_navigator = FileSystemNavigator()
+        sidebar_layout.addWidget(self.file_navigator)
 
         # Create main editor area
         self.main_area = QWidget()
@@ -217,23 +182,11 @@ class MarkdownWiki(QMainWindow):
         self.toggle_view_action.triggered.connect(self.toggle_view_mode)
         self.addAction(self.toggle_view_action)
 
-        # Create new file (Ctrl+N)
-        self.new_file_action = QAction("New File", self)
-        self.new_file_action.setShortcut(QKeySequence.New)
-        self.new_file_action.triggered.connect(self.new_file)
-        self.addAction(self.new_file_action)
-
         # Save file (Ctrl+S)
         self.save_file_action = QAction("Save File", self)
         self.save_file_action.setShortcut(QKeySequence.Save)
         self.save_file_action.triggered.connect(self.save_file)
         self.addAction(self.save_file_action)
-
-        # Rename file (F2)
-        self.rename_file_action = QAction("Rename File", self)
-        self.rename_file_action.setShortcut(QKeySequence(Qt.Key_F2))
-        self.rename_file_action.triggered.connect(self.rename_file)
-        self.addAction(self.rename_file_action)
 
         # ESC to focus sidebar
         self.focus_sidebar_action = QAction("Focus Sidebar", self)
@@ -248,39 +201,10 @@ class MarkdownWiki(QMainWindow):
         self.project_dir.mkdir(parents=True, exist_ok=True)
 
         # Set the file system model root to this directory
-        self.fs_model.setRootPath(str(self.project_dir))
-        self.tree_view.setRootIndex(self.fs_model.index(str(self.project_dir)))
+        self.file_navigator.model.setRootPath(str(self.project_dir))
+        self.file_navigator.tree_view.setRootIndex(self.file_navigator.model.index(str(self.project_dir)))
 
         self.status_bar.showMessage(f"Project opened: {directory_path}")
-
-    def new_file(self):
-        """Create a new markdown file in the root directory"""
-        if self.unsaved_changes:
-            if not self.confirm_discard_changes():
-                return
-
-        file_name, ok = QInputDialog.getText(
-            self, "New File", "Enter file name:", QLineEdit.Normal, "new_file.md"
-        )
-
-        if ok and file_name:
-            if not file_name.endswith('.md'):
-                file_name += '.md'
-
-            file_path = self.project_dir / file_name
-            if file_path.exists():
-                QMessageBox.warning(self, "File exists", f"File {file_name} already exists.")
-                return
-
-            try:
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write('')
-
-                # Open the newly created file
-                self.open_file(str(file_path))
-                self.status_bar.showMessage(f"Created new file: {file_name}")
-            except Exception as e:
-                QMessageBox.critical(self, "Error", f"Failed to create file: {str(e)}")
 
     def open_selected_file(self, index):
         """Open the file selected in the tree view"""
@@ -338,44 +262,6 @@ class MarkdownWiki(QMainWindow):
             self.setWindowTitle(self.windowTitle()[1:])
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to save file: {str(e)}")
-
-    def rename_file(self):
-        """Rename the selected file in tree view"""
-        if self.unsaved_changes:
-            if not self.confirm_discard_changes():
-                return
-
-        index = self.tree_view.currentIndex()
-        if not index.isValid():
-            self.status_bar.showMessage("No file selected to rename")
-            return
-
-        file_path = self.fs_model.filePath(index)
-        old_name = os.path.basename(file_path)
-
-        new_name, ok = QInputDialog.getText(
-            self, "Rename File", "New file name:", QLineEdit.Normal, old_name
-        )
-
-        if ok and new_name and new_name != old_name:
-            # Ensure it has .md extension if it was a markdown file
-            if old_name.endswith('.md') and not new_name.endswith('.md'):
-                new_name += '.md'
-
-            new_path = os.path.join(os.path.dirname(file_path), new_name)
-
-            if os.path.exists(new_path):
-                QMessageBox.warning(self, "File exists", f"File {new_name} already exists.")
-                return
-
-            try:
-                os.rename(file_path, new_path)
-                if self.current_file == file_path:
-                    self.current_file = new_path
-                    self.setWindowTitle(f"Markdown Wiki - {new_name}")
-                self.status_bar.showMessage(f"Renamed {old_name} to {new_name}")
-            except Exception as e:
-                QMessageBox.critical(self, "Error", f"Failed to rename file: {str(e)}")
 
     def focus_sidebar(self):
         """Handle Escape key to focus sidebar"""
@@ -474,7 +360,8 @@ if __name__ == "__main__":
 
     # Set the project directory - we'll use the current directory for this example
     # In a real app, you might want to ask the user for this or use a config file
-    wiki.set_project_directory(os.path.join(os.path.expanduser("~"), "MarkdownWiki"))
+    # wiki.set_project_directory(os.path.join(os.path.expanduser("~"), "MarkdownWiki"))
+    wiki.set_project_directory("./wiki/")
 
     wiki.show()
     sys.exit(app.exec())
