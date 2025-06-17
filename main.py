@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import os
 import sys
 from pathlib import Path
@@ -269,11 +270,17 @@ class MarkdownWiki(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--path", type=Path, help="Project path to open when executing the program.")
+    args = parser.parse_args()
+    app = QApplication([])
     wiki = MarkdownWiki()
 
-    # TODO: This only works on development mode.
-    wiki.set_project_directory(os.path.join(os.getcwd(), "wiki/"))
+    if args.path:
+        wiki.set_project_directory(args.path)
+    else:
+        # Assume development mode so point to local wiki.
+        wiki.set_project_directory(os.path.join(os.getcwd(), "wiki/"))
 
     wiki.show()
     sys.exit(app.exec())
