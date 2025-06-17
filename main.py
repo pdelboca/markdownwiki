@@ -174,26 +174,31 @@ class MarkdownWiki(QMainWindow):
 
     def focus_sidebar(self):
         """Handle Escape key to focus sidebar"""
-        self.tree_view.setFocus()
+        self.file_navigator.tree_view.setFocus()
         self.status_bar.showMessage("Sidebar focused")
+
+    def set_view_mode(self):
+        # Switch to view mode
+        self.md_editor.hide()
+        self.md_renderer.show()
+        # Update renderer with current content
+        self.md_renderer.render_markdown(self.md_editor.toPlainText())
+        self.status_bar.showMessage("View mode")
+
+    def set_edit_mode(self):
+        # Switch to edit mode
+        self.md_renderer.hide()
+        self.md_editor.show()
+        self.md_editor.setFocus()
+        self.status_bar.showMessage("Edit mode")
 
     def toggle_view_mode(self):
         """Switch between edit and view mode"""
-        self.is_view_mode = not self.is_view_mode
-
-        if self.is_view_mode:
-            # Switch to view mode
-            self.md_editor.hide()
-            self.md_renderer.show()
-            # Update renderer with current content
-            self.md_renderer.render_markdown(self.md_editor.toPlainText())
-            self.status_bar.showMessage("View mode")
+        if not self.is_view_mode:
+            self.set_view_mode()
         else:
-            # Switch to edit mode
-            self.md_renderer.hide()
-            self.md_editor.show()
-            self.md_editor.setFocus()
-            self.status_bar.showMessage("Edit mode")
+            self.set_edit_mode()
+        self.is_view_mode = not self.is_view_mode
 
     def navigate_to_file(self, target_path):
         """Navigate to a file based on a relative or absolute path"""

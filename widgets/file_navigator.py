@@ -4,8 +4,8 @@ from pathlib import Path
 
 from PySide6.QtWidgets import (QWidget, QTreeView, QFileSystemModel, QVBoxLayout,
                                QMenu, QApplication, QInputDialog, QMessageBox)
-from PySide6.QtCore import Qt, QDir, Signal, QFile, QFileInfo, QModelIndex
-from PySide6.QtGui import QAction, QKeySequence, QClipboard
+from PySide6.QtCore import Qt, QDir, Signal, QFile
+from PySide6.QtGui import QAction, QKeySequence
 
 
 class WikiTreeView(QTreeView):
@@ -24,10 +24,8 @@ class WikiTreeView(QTreeView):
                 else:
                     self.expand(index)
 
-                # If it's a file (not a directory), also emit activated signal
-                model = self.model()
-                if not model.isDir(index):
-                    self.activated.emit(index)
+                if index.data().endswith(".md") and not self.model().isDir(index):
+                    self.window().set_edit_mode()
                 return
 
         super().keyPressEvent(event)
