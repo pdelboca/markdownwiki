@@ -17,9 +17,9 @@ class MarkdownRenderer(QTextBrowser):
             MarkdownRenderer {
                 background-color: #F5F5F5;
                 color: #333333;
-                padding: 20px;
+                padding: 40px;
                 font-family: 'Segoe UI', Arial, sans-serif;
-                font-size: 16px;
+                font-size: 20px;
                 margin-left: auto;
                 margin-right: auto;
                 max-width: 800px; /* Limit width for better readability */
