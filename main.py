@@ -84,13 +84,11 @@ class MarkdownWiki(QMainWindow):
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("Ready")
 
-        # Setup actions and shortcuts
         self.setup_actions()
 
         self.setup_menu_bar()
 
     def setup_menu_bar(self):
-        # File
         self.menu_file = QMenu("File")
         self.menu_file.addAction(self.file_navigator.new_file_action)
         self.menu_file.addAction(self.file_navigator.delete_action)
@@ -98,12 +96,10 @@ class MarkdownWiki(QMainWindow):
         self.menu_file.addAction(self.save_file_action)
         self.menuBar().addMenu(self.menu_file)
 
-        # View
         self.menu_view = QMenu("View")
         self.menu_view.addAction(self.toggle_view_action)
         self.menuBar().addMenu(self.menu_view)
 
-        # Help
         self.menu_help = QMenu("Help")
         self.menu_help.addAction(self.about_dialog_action)
         self.menuBar().addMenu(self.menu_help)
@@ -137,12 +133,13 @@ class MarkdownWiki(QMainWindow):
         QMessageBox.about(self, "MarkdownWiki", "Desktop Application for handling Markdown Wikis")
 
     def set_project_directory(self, directory_path):
-        """Set the project directory for the wiki"""
+        """Set the project directory for the wiki and creates it if it doesn't exist.
+
+        TODO: Maybe this shouldn't create it.
+        """
         self.project_dir = Path(directory_path)
-        # Create directory if it doesn't exist
         self.project_dir.mkdir(parents=True, exist_ok=True)
 
-        # Set the file system model root to this directory
         self.file_navigator.model.setRootPath(str(self.project_dir))
         self.file_navigator.tree_view.setRootIndex(self.file_navigator.model.index(str(self.project_dir)))
 
@@ -158,7 +155,6 @@ class MarkdownWiki(QMainWindow):
 
     def open_file(self, file_path):
         """Open and display a markdown file"""
-        # Check if there are unsaved changes
         if self.unsaved_changes:
             if not self.confirm_discard_changes():
                 return
@@ -194,7 +190,6 @@ class MarkdownWiki(QMainWindow):
             self.unsaved_changes = False
             self.status_bar.showMessage(f"Saved file: {os.path.basename(self.current_file)}")
 
-            # Update renderer if in view mode
             if self.is_view_mode:
                 self.md_renderer.render_markdown(content)
 
@@ -209,15 +204,14 @@ class MarkdownWiki(QMainWindow):
         self.status_bar.showMessage("Sidebar focused")
 
     def set_view_mode(self):
-        # Switch to view mode
+        """Switch to View Mode and update the Markdown Rendered with latest changes."""
         self.md_editor.hide()
         self.md_renderer.show()
-        # Update renderer with current content
         self.md_renderer.render_markdown(self.md_editor.toPlainText())
         self.status_bar.showMessage("View mode")
 
     def set_edit_mode(self):
-        # Switch to edit mode
+        """Switch to edit mode."""
         self.md_renderer.hide()
         self.md_editor.show()
         self.md_editor.setFocus()
@@ -232,30 +226,28 @@ class MarkdownWiki(QMainWindow):
         self.is_view_mode = not self.is_view_mode
 
     def navigate_to_file(self, target_path):
-        """Navigate to a file based on a relative or absolute path"""
+        """Navigate to a file based on a relative or absolute path.
+
+        This method only allows to navigate to files that exist and are
+        inside the wiki folder.
+        """
         if self.unsaved_changes:
             if not self.confirm_discard_changes():
                 return
 
-        # Check if the path is absolute or relative
         path_obj = Path(target_path)
-
         if not path_obj.is_absolute() and self.current_file:
             # Calculate relative path from current file's directory
             current_dir = Path(self.current_file).parent
             path_obj = (current_dir / path_obj).resolve()
 
-        # Ensure the path is within the project directory
         try:
-            # Convert to absolute and resolve any .. parts
             path_obj = path_obj.resolve()
 
-            # Check if it's within project directory
             if self.project_dir not in path_obj.parents and path_obj != self.project_dir:
                 self.status_bar.showMessage("Cannot navigate outside project directory")
                 return
 
-            # Check if file exists, create it if necessary
             if not path_obj.exists():
                 self.status_bar.showMessage(f"File: {path_obj.name} does not exist.")
                 return
