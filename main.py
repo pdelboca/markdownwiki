@@ -2,9 +2,10 @@
 import argparse
 import os
 import sys
+
 from pathlib import Path
 from PySide6.QtWidgets import (QApplication, QMainWindow,
-                               QSplitter, QMessageBox,
+                               QSplitter, QMessageBox, QMenu,
                                QHBoxLayout, QVBoxLayout, QWidget, QStatusBar,
                                )
 from PySide6.QtCore import Qt
@@ -86,6 +87,27 @@ class MarkdownWiki(QMainWindow):
         # Setup actions and shortcuts
         self.setup_actions()
 
+        self.setup_menu_bar()
+
+    def setup_menu_bar(self):
+        # File
+        self.menu_file = QMenu("File")
+        self.menu_file.addAction(self.file_navigator.new_file_action)
+        self.menu_file.addAction(self.file_navigator.delete_action)
+        self.menu_file.addAction(self.file_navigator.rename_action)
+        self.menu_file.addAction(self.save_file_action)
+        self.menuBar().addMenu(self.menu_file)
+
+        # View
+        self.menu_view = QMenu("View")
+        self.menu_view.addAction(self.toggle_view_action)
+        self.menuBar().addMenu(self.menu_view)
+
+        # Help
+        self.menu_help = QMenu("Help")
+        self.menu_help.addAction(self.about_dialog_action)
+        self.menuBar().addMenu(self.menu_help)
+
     def setup_actions(self):
         """Setup keyboard shortcuts and actions"""
         # Switch between edit/view mode (Ctrl+`)
@@ -105,6 +127,14 @@ class MarkdownWiki(QMainWindow):
         self.focus_sidebar_action.setShortcut(QKeySequence(Qt.Key_Escape))
         self.focus_sidebar_action.triggered.connect(self.focus_sidebar)
         self.addAction(self.focus_sidebar_action)
+
+        # About Dialog
+        self.about_dialog_action = QAction("About", self)
+        self.about_dialog_action.triggered.connect(self.display_about)
+        self.addAction(self.about_dialog_action)
+
+    def display_about(self):
+        QMessageBox.about(self, "MarkdownWiki", "Desktop Application for handling Markdown Wikis")
 
     def set_project_directory(self, directory_path):
         """Set the project directory for the wiki"""
