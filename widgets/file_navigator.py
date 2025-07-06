@@ -37,37 +37,39 @@ class FileSystemNavigator(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.cut_source_path = None
 
-        # Setup layout and widgets
-        self.layout = QVBoxLayout(self)
-        self.tree_view = WikiTreeView()
-        self.layout.addWidget(self.tree_view)
-        self.setLayout(self.layout)
+        self.tree_view = WikiTreeView(self)
+        self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tree_view.customContextMenuRequested.connect(self.show_context_menu)
+        self.tree_view.setHeaderHidden(True)
 
-        # Configure file system model
         self.model = QFileSystemModel()
-        self.model.setRootPath(QDir.rootPath())
+        self.model.setRootPath("")
         self.model.setFilter(QDir.AllEntries | QDir.NoDotAndDotDot | QDir.Hidden)
         self.model.setNameFilters(["*"])
         self.model.setNameFilterDisables(False)
 
-        # Setup tree view
-        self.tree_view.setModel(self.model)
-        self.tree_view.setHeaderHidden(True)
-        # Hide columns except name
-        for col in range(1, self.model.columnCount()):
-            self.tree_view.hideColumn(col)
-        self.tree_view.selectionModel().selectionChanged.connect(self.handle_selection_change)
-
-        # Clipboard for cut-paste operations
-        self.cut_source_path = None
+        self.layout = QVBoxLayout(self)
+        self.layout.addWidget(self.tree_view)
+        self.setLayout(self.layout)
 
         # Create actions
         self.create_actions()
 
-        # Context menu
-        self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.tree_view.customContextMenuRequested.connect(self.show_context_menu)
+    def setup_navigator(self, folder: str) -> None:
+        """Sets the root path for the model and the tree view.
+
+        Column names depends on model, so we are hiding it here.
+        """
+        root_index = self.model.setRootPath(folder)
+        self.tree_view.setModel(self.model)
+        self.tree_view.setRootIndex(root_index)
+        self.tree_view.selectionModel().selectionChanged.connect(self.handle_selection_change)
+
+        # Hide columns except name
+        for col in range(1, self.model.columnCount()):
+            self.tree_view.hideColumn(col)
 
     def create_actions(self):
         # New File action

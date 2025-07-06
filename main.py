@@ -150,7 +150,7 @@ class MarkdownWiki(QMainWindow):
         )
 
     def open_wiki_folder(self):
-        """Show dialog and open a new folder as a Wiki project."""
+        """Selects and open a new folder as a Wiki project."""
         if self.unsaved_changes:
             if not self.confirm_discard_changes():
                 return
@@ -160,30 +160,17 @@ class MarkdownWiki(QMainWindow):
             self, "Select Wiki Folder", default_dir
         )
 
-        if folder:
-            self.set_project_directory(folder)
+        if not folder:
+            self.statusBar.showMessage("No folder selected. Nothing has been done.")
+            return
 
-    def set_project_directory(self, directory_path):
-        """Set the project directory for the wiki and creates it if it doesn't exist.
-
-        TODO: Maybe this shouldn't create it.
-        """
         if self.current_file:
             self.current_file = None
             self.md_editor.setPlainText("")
             self.md_renderer.render_markdown("")
 
-        self.setWindowTitle(f"Markdown Wiki - {os.path.basename(directory_path)}")
-
-        self.project_dir = Path(directory_path)
-        self.project_dir.mkdir(parents=True, exist_ok=True)
-
-        self.file_navigator.model.setRootPath(str(self.project_dir))
-        self.file_navigator.tree_view.setRootIndex(
-            self.file_navigator.model.index(str(self.project_dir))
-        )
-
-        self.status_bar.showMessage(f"Project opened: {directory_path}")
+        self.file_navigator.setup_navigator(folder)
+        self.status_bar.showMessage(f"Project opened: {folder}")
 
     def open_selected_path(self, path):
         """Open the file selected in the tree view"""
@@ -337,19 +324,7 @@ class MarkdownWiki(QMainWindow):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--path", type=Path, help="Project path to open when executing the program."
-    )
-    args = parser.parse_args()
     app = QApplication([])
     wiki = MarkdownWiki()
-
-    if args.path:
-        wiki.set_project_directory(args.path)
-    else:
-        # Assume development mode so point to local wiki.
-        wiki.set_project_directory(os.path.join(os.getcwd(), "wiki/"))
-
     wiki.show()
     sys.exit(app.exec())
