@@ -4,13 +4,20 @@ import os
 import sys
 
 from pathlib import Path
-from PySide6.QtWidgets import (QApplication, QMainWindow,
-                               QSplitter, QMessageBox, QMenu,
-                               QHBoxLayout, QVBoxLayout, QWidget, QStatusBar,
-                               )
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QSplitter,
+    QMessageBox,
+    QMenu,
+    QHBoxLayout,
+    QVBoxLayout,
+    QWidget,
+    QStatusBar,
+    QFileDialog,
+)
+from PySide6.QtCore import Qt, QStandardPaths
 from PySide6.QtGui import QKeySequence, QAction
-
 from widgets.file_navigator import FileSystemNavigator
 from widgets.renderer import MarkdownRenderer
 from widgets.editor import MarkdownEditor
@@ -91,6 +98,9 @@ class MarkdownWiki(QMainWindow):
     def setup_menu_bar(self):
         self.menu_file = QMenu("File")
         self.menu_file.addAction(self.file_navigator.new_file_action)
+        self.menu_file.addSeparator()
+        self.menu_file.addAction(self.open_folder_action)
+        self.menu_file.addSeparator()
         self.menu_file.addAction(self.file_navigator.delete_action)
         self.menu_file.addAction(self.file_navigator.rename_action)
         self.menu_file.addAction(self.save_file_action)
@@ -106,6 +116,11 @@ class MarkdownWiki(QMainWindow):
 
     def setup_actions(self):
         """Setup keyboard shortcuts and actions"""
+        # Open Folder Action
+        self.open_folder_action = QAction("Open Folder", self)
+        self.open_folder_action.triggered.connect(self.open_wiki_folder)
+        self.addAction(self.open_folder_action)
+
         # Switch between edit/view mode (Ctrl+`)
         self.toggle_view_action = QAction("Toggle View Mode", self)
         self.toggle_view_action.setShortcut(QKeySequence(Qt.CTRL | Qt.Key_QuoteLeft))
@@ -130,18 +145,43 @@ class MarkdownWiki(QMainWindow):
         self.addAction(self.about_dialog_action)
 
     def display_about(self):
-        QMessageBox.about(self, "MarkdownWiki", "Desktop Application for handling Markdown Wikis")
+        QMessageBox.about(
+            self, "MarkdownWiki", "Desktop Application for handling Markdown Wikis"
+        )
+
+    def open_wiki_folder(self):
+        """Show dialog and open a new folder as a Wiki project."""
+        if self.unsaved_changes:
+            if not self.confirm_discard_changes():
+                return
+
+        default_dir = QStandardPaths.writableLocation(QStandardPaths.HomeLocation)
+        folder = QFileDialog.getExistingDirectory(
+            self, "Select Wiki Folder", default_dir
+        )
+
+        if folder:
+            self.set_project_directory(folder)
 
     def set_project_directory(self, directory_path):
         """Set the project directory for the wiki and creates it if it doesn't exist.
 
         TODO: Maybe this shouldn't create it.
         """
+        if self.current_file:
+            self.current_file = None
+            self.md_editor.setPlainText("")
+            self.md_renderer.render_markdown("")
+
+        self.setWindowTitle(f"Markdown Wiki - {os.path.basename(directory_path)}")
+
         self.project_dir = Path(directory_path)
         self.project_dir.mkdir(parents=True, exist_ok=True)
 
         self.file_navigator.model.setRootPath(str(self.project_dir))
-        self.file_navigator.tree_view.setRootIndex(self.file_navigator.model.index(str(self.project_dir)))
+        self.file_navigator.tree_view.setRootIndex(
+            self.file_navigator.model.index(str(self.project_dir))
+        )
 
         self.status_bar.showMessage(f"Project opened: {directory_path}")
 
@@ -160,7 +200,7 @@ class MarkdownWiki(QMainWindow):
                 return
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             self.md_editor.setPlainText(content)
@@ -184,11 +224,13 @@ class MarkdownWiki(QMainWindow):
         try:
             content = self.md_editor.toPlainText()
 
-            with open(self.current_file, 'w', encoding='utf-8') as f:
+            with open(self.current_file, "w", encoding="utf-8") as f:
                 f.write(content)
 
             self.unsaved_changes = False
-            self.status_bar.showMessage(f"Saved file: {os.path.basename(self.current_file)}")
+            self.status_bar.showMessage(
+                f"Saved file: {os.path.basename(self.current_file)}"
+            )
 
             if self.is_view_mode:
                 self.md_renderer.render_markdown(content)
@@ -244,7 +286,10 @@ class MarkdownWiki(QMainWindow):
         try:
             path_obj = path_obj.resolve()
 
-            if self.project_dir not in path_obj.parents and path_obj != self.project_dir:
+            if (
+                self.project_dir not in path_obj.parents
+                and path_obj != self.project_dir
+            ):
                 self.status_bar.showMessage("Cannot navigate outside project directory")
                 return
 
@@ -270,7 +315,7 @@ class MarkdownWiki(QMainWindow):
             self,
             "Unsaved Changes",
             "You have unsaved changes. Do you want to save them?",
-            QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel
+            QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
         )
 
         if response == QMessageBox.Save:
@@ -293,7 +338,9 @@ class MarkdownWiki(QMainWindow):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--path", type=Path, help="Project path to open when executing the program.")
+    parser.add_argument(
+        "--path", type=Path, help="Project path to open when executing the program."
+    )
     args = parser.parse_args()
     app = QApplication([])
     wiki = MarkdownWiki()
