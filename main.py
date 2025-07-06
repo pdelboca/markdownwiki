@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import argparse
 import os
 import sys
 
@@ -161,7 +160,7 @@ class MarkdownWiki(QMainWindow):
         )
 
         if not folder:
-            self.statusBar.showMessage("No folder selected. Nothing has been done.")
+            self.status_bar.showMessage("No folder selected. Nothing has been done.")
             return
 
         if self.current_file:
