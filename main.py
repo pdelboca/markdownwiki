@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QStatusBar,
     QFileDialog,
 )
-from PySide6.QtCore import Qt, QStandardPaths
+from PySide6.QtCore import Qt, QStandardPaths, QSettings
 from PySide6.QtGui import QKeySequence, QAction
 from widgets.file_navigator import FileSystemNavigator
 from widgets.renderer import MarkdownRenderer
@@ -30,7 +30,11 @@ class MarkdownWiki(QMainWindow):
         self.current_file = None
         self.is_view_mode = False
         self.unsaved_changes = False
+        self.settings = QSettings("me.pdelboca", "Markdown Wiki")
         self.init_ui()
+        recent_folders = self.settings.value("recent_folders", [], type=list)
+        if len(recent_folders) > 0:
+            self.file_navigator.setup_navigator(recent_folders[0])
 
     def init_ui(self):
         """Initialize the user interface"""
@@ -99,6 +103,8 @@ class MarkdownWiki(QMainWindow):
         self.menu_file.addAction(self.file_navigator.new_file_action)
         self.menu_file.addSeparator()
         self.menu_file.addAction(self.open_folder_action)
+        self.recent_menu = self.menu_file.addMenu("Open &Recent")
+        self.recent_menu.aboutToShow.connect(self.update_recent_menu)
         self.menu_file.addSeparator()
         self.menu_file.addAction(self.file_navigator.delete_action)
         self.menu_file.addAction(self.file_navigator.rename_action)
@@ -115,7 +121,7 @@ class MarkdownWiki(QMainWindow):
 
     def setup_actions(self):
         """Setup keyboard shortcuts and actions"""
-        # Open Folder Action
+        # Open Folder
         self.open_folder_action = QAction("Open Folder", self)
         self.open_folder_action.triggered.connect(self.open_wiki_folder)
         self.addAction(self.open_folder_action)
@@ -143,10 +149,46 @@ class MarkdownWiki(QMainWindow):
         self.about_dialog_action.triggered.connect(self.display_about)
         self.addAction(self.about_dialog_action)
 
+    def update_recent_menu(self):
+        """Update recent menu items before showing it."""
+        self.recent_menu.clear()
+
+        self.recent_folders = self.settings.value("recent_folders", [], type=list)
+
+        for i, folder in enumerate(self.recent_folders):
+            name = os.path.basename(folder)
+            action = QAction(f"&{i + 1} {name}", self)
+            action.setData(folder)
+            action.triggered.connect(
+                lambda checked, f=folder: self.open_wiki_by_path(f)
+            )
+            self.recent_menu.addAction(action)
+
     def display_about(self):
         QMessageBox.about(
             self, "MarkdownWiki", "Desktop Application for handling Markdown Wikis"
         )
+
+    def open_wiki_by_path(self, folder):
+        """Process and store selected folder"""
+        if self.unsaved_changes:
+            if not self.confirm_discard_changes():
+                return
+
+        if not os.path.exists(folder):
+            QMessageBox.warning(
+                self, "Invalid Folder", "Selected folder does not exist!"
+            )
+            return
+
+        if self.current_file:
+            self.current_file = None
+            self.md_editor.setPlainText("")
+            self.md_renderer.render_markdown("")
+
+        self.file_navigator.setup_navigator(folder)
+        self._add_to_recent_folders(folder)
+        self.status_bar.showMessage(f"Project opened: {folder}")
 
     def open_wiki_folder(self):
         """Selects and open a new folder as a Wiki project."""
@@ -169,7 +211,17 @@ class MarkdownWiki(QMainWindow):
             self.md_renderer.render_markdown("")
 
         self.file_navigator.setup_navigator(folder)
+        self._add_to_recent_folders(folder)
         self.status_bar.showMessage(f"Project opened: {folder}")
+
+    def _add_to_recent_folders(self, folder):
+        """Add a folder to the recent_folder settings up to a max of 5."""
+        recent_folders = self.settings.value("recent_folders", [], type=list)
+        if folder in recent_folders:
+            recent_folders.remove(folder)
+        recent_folders.insert(0, folder)
+        recent_folders = recent_folders[:5]
+        self.settings.setValue("recent_folders", recent_folders)
 
     def open_selected_path(self, path):
         """Open the file selected in the tree view"""
