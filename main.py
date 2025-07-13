@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QStatusBar,
     QFileDialog,
 )
-from PySide6.QtCore import Qt, QStandardPaths, QSettings
+from PySide6.QtCore import Qt, QStandardPaths, QSettings, Slot
 from PySide6.QtGui import QKeySequence, QAction
 from widgets.file_navigator import FileSystemNavigator
 from widgets.renderer import MarkdownRenderer
@@ -29,7 +29,6 @@ class MarkdownWiki(QMainWindow):
         super().__init__()
         self.current_file = None
         self.is_view_mode = False
-        self.unsaved_changes = False
         self.settings = QSettings()
         self.init_ui()
         recent_folders = self.settings.value("recent_folders", [], type=list)
@@ -38,7 +37,7 @@ class MarkdownWiki(QMainWindow):
 
     def init_ui(self):
         """Initialize the user interface"""
-        self.setWindowTitle("Markdown Wiki")
+        self.setWindowTitle("Markdown Wiki[*]")
         self.setGeometry(100, 100, 1200, 800)
         self.showMaximized()
 
@@ -68,7 +67,7 @@ class MarkdownWiki(QMainWindow):
 
         # Create text editor for markdown
         self.md_editor = MarkdownEditor()
-        self.md_editor.textChanged.connect(self.on_text_changed)
+        self.md_editor.document().contentsChanged.connect(self.document_was_modified)
         self.md_editor.navigation_requested.connect(self.navigate_to_file)
 
         # Create markdown renderer
@@ -171,7 +170,7 @@ class MarkdownWiki(QMainWindow):
 
     def open_wiki_by_path(self, folder):
         """Process and store selected folder"""
-        if self.unsaved_changes:
+        if self.isWindowModified():
             if not self.confirm_discard_changes():
                 return
 
@@ -192,7 +191,7 @@ class MarkdownWiki(QMainWindow):
 
     def open_wiki_folder(self):
         """Selects and open a new folder as a Wiki project."""
-        if self.unsaved_changes:
+        if self.isWindowModified():
             if not self.confirm_discard_changes():
                 return
 
@@ -233,7 +232,7 @@ class MarkdownWiki(QMainWindow):
 
     def open_file(self, file_path):
         """Open and display a markdown file"""
-        if self.unsaved_changes:
+        if self.isWindowModified():
             if not self.confirm_discard_changes():
                 return
 
@@ -245,9 +244,10 @@ class MarkdownWiki(QMainWindow):
             self.md_renderer.render_markdown(content)
 
             self.current_file = file_path
-            self.setWindowTitle(f"Markdown Wiki - {os.path.basename(file_path)}")
+            self.setWindowTitle(f"Markdown Wiki - {os.path.basename(file_path)}[*]")
 
-            self.unsaved_changes = False
+            self.md_editor.document().setModified(False)
+            self.setWindowModified(False)
 
             self.status_bar.showMessage(f"Opened file: {os.path.basename(file_path)}")
         except Exception as e:
@@ -265,16 +265,14 @@ class MarkdownWiki(QMainWindow):
             with open(self.current_file, "w", encoding="utf-8") as f:
                 f.write(content)
 
-            self.unsaved_changes = False
+            self.md_editor.document().setModified(False)
+            self.setWindowModified(False)
             self.status_bar.showMessage(
                 f"Saved file: {os.path.basename(self.current_file)}"
             )
 
             if self.is_view_mode:
                 self.md_renderer.render_markdown(content)
-
-            # Remove * from WindowTitle
-            self.setWindowTitle(self.windowTitle()[1:])
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to save file: {str(e)}")
 
@@ -311,7 +309,7 @@ class MarkdownWiki(QMainWindow):
         This method only allows to navigate to files that exist and are
         inside the wiki folder.
         """
-        if self.unsaved_changes:
+        if self.isWindowModified():
             if not self.confirm_discard_changes():
                 return
 
@@ -340,12 +338,9 @@ class MarkdownWiki(QMainWindow):
         except Exception as e:
             self.status_bar.showMessage(f"Navigation error: {str(e)}")
 
-    def on_text_changed(self):
-        """Handle text changes in the editor"""
-        if not self.unsaved_changes:
-            self.unsaved_changes = True
-            # Add * to window title to indicate unsaved changes
-            self.setWindowTitle(f"*{self.windowTitle()}")
+    @Slot()
+    def document_was_modified(self):
+        self.setWindowModified(self.md_editor.document().isModified())
 
     def confirm_discard_changes(self):
         """Ask the user to confirm discarding unsaved changes"""
@@ -360,13 +355,15 @@ class MarkdownWiki(QMainWindow):
             self.save_file()
             return True
         elif response == QMessageBox.Discard:
+            self.setWindowModified(False)
+            self.md_editor.document().setModified(False)
             return True
         else:  # Cancel
             return False
 
     def closeEvent(self, event):
         """Handle application closing"""
-        if self.unsaved_changes:
+        if self.isWindowModified():
             if not self.confirm_discard_changes():
                 event.ignore()
                 return

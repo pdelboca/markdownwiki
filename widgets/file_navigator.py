@@ -253,7 +253,6 @@ class FileSystemNavigator(QWidget):
         path = self.get_selected_path()
         if path:
             self.selected_item.emit(path)
-            self.update_status(f"Selected: {os.path.basename(path)}")
 
     def show_context_menu(self, position):
         menu = QMenu()
