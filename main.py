@@ -30,7 +30,7 @@ class MarkdownWiki(QMainWindow):
         self.current_file = None
         self.is_view_mode = False
         self.unsaved_changes = False
-        self.settings = QSettings("me.pdelboca", "Markdown Wiki")
+        self.settings = QSettings()
         self.init_ui()
         recent_folders = self.settings.value("recent_folders", [], type=list)
         if len(recent_folders) > 0:
@@ -376,6 +376,10 @@ class MarkdownWiki(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication([])
+    app.setOrganizationName("me.pdelboca")
+    app.setApplicationName("Markdown Wiki")
+    app.setApplicationVersion("0.1.0")
+    app.setStyle("Fusion")
     wiki = MarkdownWiki()
     wiki.show()
     sys.exit(app.exec())
