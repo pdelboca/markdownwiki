@@ -65,6 +65,7 @@ class FileSystemNavigator(QWidget):
         root_index = self.model.setRootPath(folder)
         self.tree_view.setModel(self.model)
         self.tree_view.setRootIndex(root_index)
+        self.tree_view.setCurrentIndex(root_index)
         self.tree_view.selectionModel().selectionChanged.connect(self.handle_selection_change)
 
         # Hide columns except name
@@ -126,15 +127,17 @@ class FileSystemNavigator(QWidget):
         return self.model.filePath(index) if index.isValid() else None
 
     def create_new_file(self):
+        """Create a new file and its parent folders if they do not exist."""
         current_dir = self.get_current_directory()
         if not current_dir:
             return
 
-        file_name, ok = QInputDialog.getText(self, "New File", "Enter file name:")
+        file_name, ok = QInputDialog.getText(self, "New File", "Enter file name (with extension):")
 
         if ok and file_name:
+            new_file = Path(current_dir, file_name)
             try:
-                new_file = Path(current_dir, file_name)
+                new_file.parent.mkdir(parents=True, exist_ok=True)
                 new_file.touch(exist_ok=False)
                 self.update_status(f"Created file: {new_file}")
             except FileExistsError:
