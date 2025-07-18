@@ -78,6 +78,10 @@ class FileSystemNavigator(QWidget):
         self.new_file_action.setShortcut(QKeySequence.New)
         self.new_file_action.triggered.connect(self.create_new_file)
 
+        # New Folder action
+        self.new_folder_action = QAction("New Folder", self)
+        self.new_folder_action.triggered.connect(self.create_new_folder)
+
         # Delete action
         self.delete_action = QAction("Delete", self)
         self.delete_action.setShortcut(QKeySequence.Delete)
@@ -100,6 +104,7 @@ class FileSystemNavigator(QWidget):
 
         # Add actions to widget
         self.addAction(self.new_file_action)
+        self.addAction(self.new_folder_action)
         self.addAction(self.delete_action)
         self.addAction(self.rename_action)
         self.addAction(self.cut_action)
@@ -142,6 +147,24 @@ class FileSystemNavigator(QWidget):
                 self.update_status(f"Created file: {new_file}")
             except FileExistsError:
                 self.update_status("A file with that name already exist. Nothing has been done.")
+            except Exception as e:
+                self.update_status(f"Error creating file: {str(e)}")
+
+    def create_new_folder(self):
+        """Create a new folder and its parents if they do not exist."""
+        current_dir = self.get_current_directory()
+        if not current_dir:
+            return
+
+        folder_name, ok = QInputDialog.getText(self, "New Folder", "Enter folder name:")
+
+        if ok and folder_name:
+            new_folder = Path(current_dir, folder_name)
+            try:
+                new_folder.mkdir(parents=True)
+                self.update_status(f"Folder created: {new_folder}")
+            except FileExistsError:
+                self.update_status("A folder with that name already exist. Nothing has been done.")
             except Exception as e:
                 self.update_status(f"Error creating file: {str(e)}")
 

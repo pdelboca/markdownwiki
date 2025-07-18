@@ -100,6 +100,7 @@ class MarkdownWiki(QMainWindow):
     def setup_menu_bar(self):
         self.menu_file = QMenu("File")
         self.menu_file.addAction(self.file_navigator.new_file_action)
+        self.menu_file.addAction(self.file_navigator.new_folder_action)
         self.menu_file.addSeparator()
         self.menu_file.addAction(self.open_folder_action)
         self.recent_menu = self.menu_file.addMenu("Open &Recent")
