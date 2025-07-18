@@ -16,10 +16,13 @@ from PySide6.QtWidgets import (
     QFileDialog,
 )
 from PySide6.QtCore import Qt, QStandardPaths, QSettings, Slot
-from PySide6.QtGui import QKeySequence, QAction
+from PySide6.QtGui import QKeySequence, QAction, QIcon
+
+from assets import resources
 from widgets.file_navigator import FileSystemNavigator
 from widgets.renderer import MarkdownRenderer
 from widgets.editor import MarkdownEditor
+
 
 
 class MarkdownWiki(QMainWindow):
@@ -374,6 +377,7 @@ class MarkdownWiki(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication([])
+    app.setWindowIcon(QIcon(':/icons/icon.ico'))
     app.setOrganizationName("me.pdelboca")
     app.setApplicationName("Markdown Wiki")
     app.setApplicationVersion("0.1.0")
