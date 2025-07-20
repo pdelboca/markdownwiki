@@ -24,7 +24,6 @@ from widgets.renderer import MarkdownRenderer
 from widgets.editor import MarkdownEditor
 
 
-
 class MarkdownWiki(QMainWindow):
     """Main application window for Markdown Wiki"""
 
@@ -379,7 +378,7 @@ if __name__ == "__main__":
     app = QApplication([])
     app.setWindowIcon(QIcon(':/icons/icon.ico'))
     app.setOrganizationName("me.pdelboca")
-    app.setApplicationName("Markdown Wiki")
+    app.setApplicationName("markdownwiki")
     app.setApplicationVersion("0.1.0")
     app.setStyle("Fusion")
     wiki = MarkdownWiki()

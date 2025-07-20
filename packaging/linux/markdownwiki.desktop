@@ -1,0 +1,22 @@
+[Desktop Entry]
+
+# The type of the thing this desktop file refers to
+Type=Application
+
+# The Application Name
+Name=Markdown Wiki
+
+# Tooltip comment to show in menus
+Comment=Desktop Application for editing Markdown based Wikis.
+
+# The path (folder) in which the executable is run
+Path=/opt/markdownwiki
+
+# The executable (can include arguments)
+Exec=/opt/markdownwiki/main.bin
+
+# The icon we install for the application, use the target filesystem path
+Icon=me.pdelboca.markdownwiki
+
+# Categories in which the entry should be shown in a menu (for possible values see the Desktop Menu Specification).
+Categories=Development;Office

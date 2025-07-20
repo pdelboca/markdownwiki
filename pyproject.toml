@@ -1,6 +1,6 @@
 [project]
-name = "markdown-wiki"
-version = "0.0.1"
+name = "markdownwiki"
+version = "0.1.0"
 description = "Desktop Application for editing Markdown based Wikis."
 readme = "README.md"
 requires-python = ">=3.13"
@@ -14,6 +14,7 @@ dev = [
     "ipdb>=0.13.13",
     "pip>=25.1.1",
     "ruff>=0.11.10",
+    "tomlkit>=0.13.3",
 ]
 
 [tool.pyside6-project]
