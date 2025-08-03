@@ -18,6 +18,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QStandardPaths, QSettings, Slot
 from PySide6.QtGui import QKeySequence, QAction, QIcon
 
+from superqt.utils import CodeSyntaxHighlight
+
 from assets import resources
 from widgets.file_navigator import FileSystemNavigator
 from widgets.renderer import MarkdownRenderer
@@ -70,6 +72,7 @@ class MarkdownWiki(QMainWindow):
 
         # Create text editor for markdown
         self.md_editor = MarkdownEditor()
+        CodeSyntaxHighlight(self.md_editor.document(), "markdown", "bw")
         self.md_editor.document().contentsChanged.connect(self.document_was_modified)
         self.md_editor.navigation_requested.connect(self.navigate_to_file)
 
@@ -367,7 +370,7 @@ if __name__ == "__main__":
     app.setWindowIcon(QIcon(':/icons/icon.ico'))
     app.setOrganizationName("me.pdelboca")
     app.setApplicationName("markdownwiki")
-    app.setApplicationVersion("0.1.2")
+    app.setApplicationVersion("0.1.3")
     app.setStyle("Fusion")
     wiki = MarkdownWiki()
     wiki.show()
