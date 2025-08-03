@@ -22,7 +22,7 @@ mkdir -p tmp/usr/share/icons/hicolor/scalable/apps
 
 # Build the project
 [ -e markdownwiki.dist ] && rm -r markdownwiki.dist
-pyside6-deploy -c pysidedeploy.spec
+uv run pyside6-deploy -c pysidedeploy.spec
 
 # Copy files
 cp -r dist/markdownwiki.dist tmp/opt/markdownwiki
