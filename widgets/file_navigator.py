@@ -72,6 +72,8 @@ class FileSystemNavigator(QWidget):
         for col in range(1, self.model.columnCount()):
             self.tree_view.hideColumn(col)
 
+        self.window().project_dir = Path(folder)
+
     def create_actions(self):
         # New File action
         self.new_file_action = QAction("New File", self)

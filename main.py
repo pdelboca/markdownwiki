@@ -30,6 +30,7 @@ class MarkdownWiki(QMainWindow):
     def __init__(self):
         super().__init__()
         self.current_file = None
+        self.project_dir = None
         self.is_view_mode = False
         self.settings = QSettings()
         self.init_ui()
@@ -316,28 +317,14 @@ class MarkdownWiki(QMainWindow):
             if not self.confirm_discard_changes():
                 return
 
-        path_obj = Path(target_path)
-        if not path_obj.is_absolute() and self.current_file:
-            # Calculate relative path from current file's directory
-            current_dir = Path(self.current_file).parent
-            path_obj = (current_dir / path_obj).resolve()
+        abs_path = (self.project_dir / Path(target_path)).resolve()
+
+        if not abs_path.exists():
+            self.status_bar.showMessage(f"File: {abs_path.name} does not exist.")
+            return
 
         try:
-            path_obj = path_obj.resolve()
-
-            if (
-                self.project_dir not in path_obj.parents
-                and path_obj != self.project_dir
-            ):
-                self.status_bar.showMessage("Cannot navigate outside project directory")
-                return
-
-            if not path_obj.exists():
-                self.status_bar.showMessage(f"File: {path_obj.name} does not exist.")
-                return
-
-            self.open_file(str(path_obj))
-
+            self.open_file(str(abs_path))
         except Exception as e:
             self.status_bar.showMessage(f"Navigation error: {str(e)}")
 
