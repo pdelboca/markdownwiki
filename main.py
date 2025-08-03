@@ -168,8 +168,9 @@ class MarkdownWiki(QMainWindow):
             self.recent_menu.addAction(action)
 
     def display_about(self):
+        version = QApplication.applicationVersion()
         QMessageBox.about(
-            self, "MarkdownWiki", "Desktop Application for handling Markdown Wikis"
+            self, "MarkdownWiki", f"Desktop Application for handling Markdown Wikis.\nVersion: {version}"
         )
 
     def open_wiki_by_path(self, folder):
@@ -366,7 +367,7 @@ if __name__ == "__main__":
     app.setWindowIcon(QIcon(':/icons/icon.ico'))
     app.setOrganizationName("me.pdelboca")
     app.setApplicationName("markdownwiki")
-    app.setApplicationVersion("0.1.0")
+    app.setApplicationVersion("0.1.1")
     app.setStyle("Fusion")
     wiki = MarkdownWiki()
     wiki.show()
