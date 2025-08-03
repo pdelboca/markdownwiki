@@ -14,3 +14,10 @@ Markdown Wiki aims to be a feature complete application with a concrete list of 
 
 Once all features are complete, the application will be considered done and only bugfixes and maintainance will be done.
 
+## TODO
+  - [x] Handle folder creation/deletion.
+  - [ ] Paste without formating.
+  - [ ] When toogling view, keep the position of the cursor.
+  - [ ] When deleting a file, clean the QTextView.
+  - [ ] Syntax Highlight.
+  - [ ] Improve render QSS style for better readability.
