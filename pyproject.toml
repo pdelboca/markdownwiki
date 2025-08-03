@@ -1,6 +1,6 @@
 [project]
 name = "markdownwiki"
-version = "0.1.0"
+version = "0.1.1"
 description = "Desktop Application for editing Markdown based Wikis."
 readme = "README.md"
 requires-python = ">=3.13"

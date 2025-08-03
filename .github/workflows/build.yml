@@ -1,0 +1,47 @@
+name: Build application
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*.*.*
+env:
+  # Mandatory when using uv pip workflow.
+  UV_SYSTEM_PYTHON: 1
+
+jobs:
+  linux-packaging:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    needs: tests
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.13"
+      - name: Install OS Dependencies
+        run: |
+          sudo apt-get update
+          sudo gem install fpm
+          fpm --version
+      - name: Install Qt Dependencies
+        run: |
+          # https://forum.qt.io/post/769050
+          sudo apt-get install libxcb-icccm4 libxcb-image0-dev libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1 libxcb-xinerama0 libxkbcommon-x11-0 libxcb-cursor0 libxcb-shape0-dev
+      - name: Install Dependencies
+        run: |
+          pip3 install -r requirements.txt
+      - name: Build the deb package
+        run: |
+          chmod +x create-deb.sh
+          ./create-deb.sh
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: distribution-files-deb
+          path: |
+            dist/*.deb
+          retention-days: 14
