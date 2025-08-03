@@ -285,6 +285,7 @@ class FileSystemNavigator(QWidget):
     def show_context_menu(self, position):
         menu = QMenu()
         menu.addAction(self.new_file_action)
+        menu.addAction(self.new_folder_action)
 
         if self.get_selected_path():
             menu.addAction(self.delete_action)
