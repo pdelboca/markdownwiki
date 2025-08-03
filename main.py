@@ -367,7 +367,7 @@ if __name__ == "__main__":
     app.setWindowIcon(QIcon(':/icons/icon.ico'))
     app.setOrganizationName("me.pdelboca")
     app.setApplicationName("markdownwiki")
-    app.setApplicationVersion("0.1.1")
+    app.setApplicationVersion("0.1.2")
     app.setStyle("Fusion")
     wiki = MarkdownWiki()
     wiki.show()
