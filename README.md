@@ -16,7 +16,7 @@ Once all features are complete, the application will be considered done and only
 
 ## TODO
   - [x] Handle folder creation/deletion.
-  - [ ] Paste without formating.
+  - [x] Paste without formating.
   - [ ] When toogling view, keep the position of the cursor.
   - [ ] When deleting a file, clean the QTextView.
   - [ ] Syntax Highlight.
