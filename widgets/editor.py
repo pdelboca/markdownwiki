@@ -13,6 +13,7 @@ class MarkdownEditor(QTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
         font = QFont("Courier New", 16, weight=500)
+        self.setAcceptRichText(False)
         self.setFont(font)
 
     def keyPressEvent(self, event):
