@@ -7,7 +7,7 @@ title = markdownwiki
 project_dir = .
 
 # source file entry point path. default = main.py
-input_file = main.py
+input_file = /home/pdelboca/Repos/markdown-wiki/main.py
 
 # directory where the executable output is generated
 exec_directory = dist
@@ -21,7 +21,7 @@ icon = ./assets/icon.ico
 [python]
 
 # python path
-python_path = .venv/bin/python3
+python_path = /home/pdelboca/Repos/markdown-wiki/.venv/bin/python3
 
 # python packages to install
 packages = Nuitka==2.6.8
@@ -36,7 +36,7 @@ qml_files =
 excluded_qml_plugins = 
 
 # qt modules used. comma separated
-modules = DBus,Gui,Widgets,Core
+modules = Widgets,Core,DBus,Gui
 
 # qt plugins used by the application. only relevant for desktop deployment
 # for qt plugins used in android application see [android][plugins]
