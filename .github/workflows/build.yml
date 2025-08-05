@@ -43,8 +43,7 @@ jobs:
         with:
           name: distribution-files-deb
           path: |
-            dist/*.deb
-          compression-level: 0
+            dist/markdownwiki-linux.deb
           retention-days: 14
   release:
     runs-on: ubuntu-latest
@@ -59,6 +58,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            artifacts/*.deb
+            artifacts/markdownwiki-linux.deb
           draft: true
           overwrite_files: false
