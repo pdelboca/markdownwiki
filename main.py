@@ -25,6 +25,8 @@ from widgets.file_navigator import FileSystemNavigator
 from widgets.renderer import MarkdownRenderer
 from widgets.editor import MarkdownEditor
 
+# Hardcoded and updated automatically when running do_release.sh
+__VERSION__ = "0.2.0"
 
 class MarkdownWiki(QMainWindow):
     """Main application window for Markdown Wiki"""
@@ -370,7 +372,7 @@ if __name__ == "__main__":
     app.setWindowIcon(QIcon(':/icons/icon.ico'))
     app.setOrganizationName("me.pdelboca")
     app.setApplicationName("markdownwiki")
-    app.setApplicationVersion("0.1.3")
+    app.setApplicationVersion(__VERSION__)
     app.setStyle("Fusion")
     wiki = MarkdownWiki()
     wiki.show()
