@@ -17,11 +17,11 @@ git add main.py
 git add pyproject.toml
 git add uv.lock
 
-#git commit -a -m "bump: Release v$NEW_VERSION"
-#git tag "v$NEW_VERSION"
+git commit -a -m "bump: Release v$NEW_VERSION"
+git tag "v$NEW_VERSION"
 
 # Create DEB file for Release.
 ./create-deb.sh
 
-#git push --tags
-#gh release create "v$VERSION" "dist/markdownwiki-linux-$NEW_VERSION.deb" --title "v$VERSION" --draft
+git push --tags
+gh release create "v$VERSION" "dist/markdownwiki-linux-$NEW_VERSION.deb" --title "v$VERSION" --draft
