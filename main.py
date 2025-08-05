@@ -26,7 +26,7 @@ from widgets.renderer import MarkdownRenderer
 from widgets.editor import MarkdownEditor
 
 # Hardcoded and updated automatically when running do_release.sh
-__VERSION__ = "0.2.0"
+__VERSION__ = "0.2.1"
 
 class MarkdownWiki(QMainWindow):
     """Main application window for Markdown Wiki"""
