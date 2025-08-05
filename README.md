@@ -30,7 +30,7 @@ MarkdownWiki is written in Python 3.13 using [Qt for Python](https://doc.qt.io/q
 
 ## Contributing
 
-- Fork it (https://github.com/pdelboca/markdown/fork)
+- Fork it (https://github.com/pdelboca/markdownwiki/fork)
 - Create your feature branch (git checkout -b my-new-feature)
 - Commit your changes (git commit -am 'Add some feature')
 - Push to the branch (git push origin my-new-feature)
