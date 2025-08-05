@@ -28,7 +28,7 @@ from assets import resources # noqa: F401 # Required for building process.
 from pygments.lexers import markup # noqa: F401 # Required for building process.
 
 # Hardcoded and updated automatically when running do_release.sh
-__VERSION__ = "0.2.3"
+__VERSION__ = "0.2.4"
 
 class MarkdownWiki(QMainWindow):
     """Main application window for Markdown Wiki"""
