@@ -40,6 +40,6 @@ chmod +x tmp/opt/markdownwiki/main.bin
 
 # Create the deb package
 VERSION=$(uv version --short)
-FILENAME=markdownwiki-linux.deb
+FILENAME=markdownwiki-linux-$VERSION.deb
 [ -e dist/$FILENAME ] && rm dist/$FILENAME
 fpm -C tmp -s dir -t deb -n "markdownwiki" -v $VERSION  -p dist/$FILENAME
