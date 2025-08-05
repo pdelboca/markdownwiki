@@ -45,3 +45,19 @@ jobs:
           path: |
             dist/*.deb
           retention-days: 14
+  release:
+    runs-on: ubuntu-latest
+    needs: [linux-packaging]
+    if: github.ref_type == 'tag'
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Create release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/*.deb
+          draft: true
+          overwrite_files: false
