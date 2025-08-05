@@ -5,6 +5,12 @@ goal is to be a simple offline tool to quickly create, link, edit and visualize 
 
 ![Application screenshot](./index.png)
 
+## Installation
+
+Currently only Debian/Ubuntu is supported. You can download the `deb` package from the [latest release page](https://github.com/pdelboca/markdownwiki/releases/latest).
+
+To run it locally you can `clone` the repository and execute `uv run main.py`. (Requires [uv](https://docs.astral.sh/uv/) installed)
+
 ## Main Features
 
 Markdown Wiki aims to be a feature complete application with a concrete list of features:
@@ -26,7 +32,6 @@ Once all features are complete, the application will be considered done and only
 ## Development
 
 MarkdownWiki is written in Python 3.13 using [Qt for Python](https://doc.qt.io/qtforpython-6/) and the project is using [uv](https://docs.astral.sh/uv/) to handle environments, dependencies and versions.
-
 
 ## Contributing
 
