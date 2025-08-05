@@ -111,6 +111,7 @@ version = "0.2.3"
 source = { virtual = "." }
 dependencies = [
     { name = "markdown" },
+    { name = "pygments" },
     { name = "pyside6" },
     { name = "superqt" },
 ]
@@ -126,6 +127,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "markdown", specifier = ">=3.8" },
+    { name = "pygments", specifier = ">=2.19.1" },
     { name = "pyside6", specifier = "==6.9.0" },
     { name = "superqt", specifier = ">=0.7.5" },
 ]

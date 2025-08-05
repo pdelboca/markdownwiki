@@ -20,10 +20,12 @@ from PySide6.QtGui import QKeySequence, QAction, QIcon
 
 from superqt.utils import CodeSyntaxHighlight
 
-from assets import resources
 from widgets.file_navigator import FileSystemNavigator
 from widgets.renderer import MarkdownRenderer
 from widgets.editor import MarkdownEditor
+
+from assets import resources # noqa: F401 # Required for building process.
+from pygments.lexers import markup # noqa: F401 # Required for building process.
 
 # Hardcoded and updated automatically when running do_release.sh
 __VERSION__ = "0.2.3"
