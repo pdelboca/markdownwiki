@@ -24,22 +24,26 @@ class MarkdownRenderer(QTextBrowser):
                 margin-right: auto;
                 max-width: 800px; /* Limit width for better readability */
             }
-            MarkdownRenderer h1 { font-size: 32px; color: #1a1a1a; margin-top: 24px; margin-bottom: 16px; }
-            MarkdownRenderer h2 { font-size: 28px; color: #1a1a1a; margin-top: 22px; margin-bottom: 14px; }
-            MarkdownRenderer h3 { font-size: 24px; color: #1a1a1a; margin-top: 20px; margin-bottom: 12px; }
-            MarkdownRenderer h4 { font-size: 20px; color: #1a1a1a; margin-top: 18px; margin-bottom: 10px; }
-            MarkdownRenderer p { line-height: 1.6; margin-bottom: 16px; }
-            MarkdownRenderer a { color: #0078d7; text-decoration: none; }
-            MarkdownRenderer a:hover { text-decoration: underline; }
-            MarkdownRenderer code { background-color: #f0f0f0; padding: 2px 4px; border-radius: 3px; font-family: 'Courier New', monospace; }
-            MarkdownRenderer pre { background-color: #f0f0f0; padding: 10px; border-radius: 5px; font-family: 'Courier New', monospace; overflow-x: auto; }
-            MarkdownRenderer blockquote { border-left: 4px solid #cccccc; margin-left: 0; padding-left: 16px; color: #555555; }
-            MarkdownRenderer img { max-width: 100%; }
-            MarkdownRenderer table { border-collapse: collapse; }
-            MarkdownRenderer th, td { border: 1px solid #ddd; padding: 8px; }
-            MarkdownRenderer tr:nth-child(even) { background-color: #f2f2f2; }
         """)
+        self.document().setDefaultStyleSheet("""
+            h1 { font-size: 32px; color: #1a1a1a; margin-top: 24px; margin-bottom: 16px; }
+            h2 { font-size: 28px; color: #1a1a1a; margin-top: 22px; margin-bottom: 14px; }
+            h3 { font-size: 24px; color: #1a1a1a; margin-top: 20px; margin-bottom: 12px; }
+            h4 { font-size: 20px; color: #1a1a1a; margin-top: 18px; margin-bottom: 10px; }
+            p { line-height: 1.5; margin-bottom: 16px; }
+            a { color: #0078d7; text-decoration: none; }
+            ul {margin-bottom: 16px; }
+            ul li { margin-bottom: 10px; }
+            a:hover { text-decoration: underline; }
+            code { background-color: #f0f0f0; padding: 2px 4px; border-radius: 3px; font-family: 'Courier New', monospace; }
+            pre { background-color: #f0f0f0; padding: 10px; border-radius: 5px; font-family: 'Courier New', monospace; overflow-x: auto; }
+            blockquote { border-left: 4px solid #cccccc; margin-left: 0; padding-left: 16px; color: #555555; }
+            img { max-width: 100%; }
+            table { border-collapse: collapse; }
+            th, td { border: 1px solid #ddd; padding: 8px; }
+            tr:nth-child(even) { background-color: #f2f2f2; }
 
+        """)
         # Connect anchor click event
         self.anchorClicked.connect(self.on_link_clicked)
 
