@@ -2,10 +2,48 @@ import os
 
 from pathlib import Path
 
-from PySide6.QtWidgets import (QWidget, QTreeView, QFileSystemModel, QVBoxLayout,
-                               QMenu, QApplication, QInputDialog, QMessageBox)
+from PySide6.QtWidgets import (QWidget, QTreeView, QFileSystemModel, QVBoxLayout, QFormLayout,
+                               QMenu, QApplication, QInputDialog, QMessageBox, QDialog,
+                               QLineEdit, QLabel, QDialogButtonBox)
 from PySide6.QtCore import Qt, QDir, Signal, QFile
 from PySide6.QtGui import QAction, QKeySequence
+
+
+class InputDialog(QDialog):
+    """A Dialog for requesting a text input to the user.
+
+    It is similar to QInputDialog but with a more convenient layout for inputing
+    folder or file names.
+    """
+    def __init__(self, parent: QWidget, title: str, label: str):
+        super().__init__(parent=parent)
+        self.setWindowTitle(title)
+        layout = QFormLayout()
+
+        buttons = (QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+
+        self.buttonBox = QDialogButtonBox(buttons)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        self.label = QLabel(label)
+        self.input = QLineEdit()
+        layout.addRow(self.label, self.input)
+        layout.addWidget(self.buttonBox)
+        self.setLayout(layout)
+
+    @staticmethod
+    def getText(parent: QWidget, title: str, label:str) -> tuple[str, int]:
+        """Display the dialog and returns the value.
+
+        This method mimics the QInputDialog.getText() interface.
+        """
+        dialog = InputDialog(parent, title, label)
+        ok = dialog.exec()
+        if ok:
+            return dialog.input.text(), ok
+        else:
+            return "", ok
 
 
 class WikiTreeView(QTreeView):
@@ -139,7 +177,8 @@ class FileSystemNavigator(QWidget):
         if not current_dir:
             return
 
-        file_name, ok = QInputDialog.getText(self, "New File", "Enter file name (with extension):")
+        label = current_dir + "/"
+        file_name, ok = InputDialog.getText(self, "Enter the file name (with .md extension)...", label)
 
         if ok and file_name:
             new_file = Path(current_dir, file_name)
@@ -158,7 +197,8 @@ class FileSystemNavigator(QWidget):
         if not current_dir:
             return
 
-        folder_name, ok = QInputDialog.getText(self, "New Folder", "Enter folder name:")
+        label = current_dir + "/"
+        folder_name, ok = InputDialog.getText(self, "Enter the folder name...", label)
 
         if ok and folder_name:
             new_folder = Path(current_dir, folder_name)
