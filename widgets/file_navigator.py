@@ -68,6 +68,13 @@ class WikiTreeView(QTreeView):
 
         super().keyPressEvent(event)
 
+    def mousePressEvent(self, event):
+        """Clear selection and reset currentIndex when clicking an empty space."""
+        item = self.indexAt(event.pos())
+        if not item.isValid():
+            self.clearSelection()
+            self.setCurrentIndex(self.rootIndex())
+        super().mousePressEvent(event)
 
 class FileSystemNavigator(QWidget):
     status_message = Signal(str)
