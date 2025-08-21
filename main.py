@@ -247,14 +247,23 @@ class MarkdownWiki(QMainWindow):
         if self.isWindowModified():
             if not self.confirm_discard_changes():
                 return
-
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
-
             self.md_editor.setPlainText(content)
             self.md_renderer.render_markdown(content)
-
+        except Exception as e:
+            # In case of error we reset the state of the application to avoid
+            # data corruption due to setPlainText setting the document as modified
+            self.current_file = None
+            self.md_editor.setPlainText("")
+            self.md_renderer.render_markdown("")
+            self.md_editor.document().setModified(False)
+            self.setWindowModified(False)
+            self.setWindowTitle("Markdown Wiki[*]")
+            self.status_bar.showMessage(f"Could not open {file_path}.")
+            QMessageBox.critical(self, "Error", f"Failed to open file: {str(e)}")
+        else:
             self.current_file = file_path
             self.setWindowTitle(f"Markdown Wiki - {os.path.basename(file_path)}[*]")
 
@@ -262,8 +271,6 @@ class MarkdownWiki(QMainWindow):
             self.setWindowModified(False)
 
             self.status_bar.showMessage(f"Opened file: {os.path.basename(file_path)}")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to open file: {str(e)}")
 
     def save_file(self):
         """Save the current file"""
@@ -273,20 +280,18 @@ class MarkdownWiki(QMainWindow):
 
         try:
             content = self.md_editor.toPlainText()
-
             with open(self.current_file, "w", encoding="utf-8") as f:
                 f.write(content)
-
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to save file: {str(e)}")
+        else:
             self.md_editor.document().setModified(False)
             self.setWindowModified(False)
             self.status_bar.showMessage(
                 f"Saved file: {os.path.basename(self.current_file)}"
             )
-
             if self.is_view_mode:
                 self.md_renderer.render_markdown(content)
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to save file: {str(e)}")
 
     def focus_sidebar(self):
         """Handle Escape key to focus sidebar"""
