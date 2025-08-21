@@ -15,17 +15,19 @@
 #  - https://fpm.readthedocs.io/en/latest/packages/dir.html#dir-local-files
 #
 # Create temporary folders
+set -e
+
 [ -e tmp ] && rm -r tmp
 mkdir -p tmp/opt
 mkdir -p tmp/usr/share/applications
 mkdir -p tmp/usr/share/icons/hicolor/scalable/apps
 
 # Build the project
-[ -e markdownwiki.dist ] && rm -r markdownwiki.dist
-uv run pyside6-deploy -c pysidedeploy.spec
+[ -e "dist" ] && rm -r dist
+uv run pyinstaller markdownwiki.spec
 
 # Copy files
-cp -r dist/markdownwiki.dist tmp/opt/markdownwiki
+cp -r dist/markdownwiki tmp/opt/markdownwiki
 cp ./packaging/linux/icon.svg tmp/usr/share/icons/hicolor/scalable/apps/me.pdelboca.markdownwiki.svg
 cp ./packaging/linux/markdownwiki.desktop tmp/usr/share/applications
 
@@ -36,7 +38,7 @@ cp ./packaging/linux/markdownwiki.desktop tmp/usr/share/applications
 find tmp/opt/markdownwiki -type f -exec chmod 644 -- {} +
 find tmp/opt/markdownwiki -type d -exec chmod 755 -- {} +
 find tmp/usr/share -type f -exec chmod 644 -- {} +
-chmod +x tmp/opt/markdownwiki/main.bin
+chmod +x tmp/opt/markdownwiki/markdownwiki
 
 # Create the deb package
 VERSION=$(uv version --short)

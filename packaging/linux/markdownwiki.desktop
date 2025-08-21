@@ -13,7 +13,7 @@ Comment=Desktop Application for editing Markdown based Wikis.
 Path=/opt/markdownwiki
 
 # The executable (can include arguments)
-Exec=/opt/markdownwiki/main.bin
+Exec=/opt/markdownwiki/markdownwiki
 
 # The icon we install for the application, use the target filesystem path
 Icon=me.pdelboca.markdownwiki

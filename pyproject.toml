@@ -9,6 +9,7 @@ dependencies = [
     "pygments>=2.19.1",
     "pyside6==6.9.0",
     "superqt>=0.7.5",
+    "pyinstaller==6.15.0"
 ]
 
 [dependency-groups]
