@@ -13,10 +13,9 @@
 # More info:
 #  - https://www.pythonguis.com/tutorials/packaging-pyqt5-applications-linux-pyinstaller/
 #  - https://fpm.readthedocs.io/en/latest/packages/dir.html#dir-local-files
-#
-# Create temporary folders
 set -e
 
+# Create temporary folders
 [ -e tmp ] && rm -r tmp
 mkdir -p tmp/opt
 mkdir -p tmp/usr/share/applications
