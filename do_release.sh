@@ -23,5 +23,5 @@ git tag "v$NEW_VERSION"
 # Create DEB file for Release.
 ./create-deb.sh
 
-git push --tags
+git push --follow-tags
 gh release create "v$NEW_VERSION" "dist/markdownwiki-linux-$NEW_VERSION.deb" --title "v$NEW_VERSION" --generate-notes --draft
