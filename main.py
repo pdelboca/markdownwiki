@@ -300,6 +300,20 @@ class MarkdownWiki(QMainWindow):
         self.md_renderer.show()
         self.md_renderer.render_markdown(self.md_editor.toPlainText())
         self.status_bar.showMessage("View mode")
+        self._sync_renderer_scroll()
+
+    def _sync_renderer_scroll(self):
+        """Synchronize the renderer scroll position with the editor's position.
+
+        When toogling from editor -> render we sync the scrollbar so it is positioned
+        at the same height than the editor. This doesn't happen when toogling render -> edit
+        since we always want to be at the cursor's position.
+        """
+        editor_max = self.md_editor.verticalScrollBar().maximum()
+        if editor_max > 0:
+            scroll_ratio = self.md_editor.verticalScrollBar().value() / editor_max
+            renderer_max = self.md_renderer.verticalScrollBar().maximum()
+            self.md_renderer.verticalScrollBar().setValue(int(scroll_ratio * renderer_max))
 
     def set_edit_mode(self):
         """Switch to edit mode."""
