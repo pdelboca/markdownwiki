@@ -237,8 +237,8 @@ class MarkdownWiki(QMainWindow):
     def open_selected_path(self, path):
         """Open the file selected in the tree view"""
         path = Path(path)
-        # If it's a directory, just expand/collapse it
         if path.is_dir():
+            self._reset_state()
             return
         self.open_file(path)
 
@@ -254,13 +254,9 @@ class MarkdownWiki(QMainWindow):
             self.md_renderer.render_markdown(content)
         except Exception as e:
             # In case of error we reset the state of the application to avoid
-            # data corruption due to setPlainText setting the document as modified
-            self.current_file = None
-            self.md_editor.setPlainText("")
-            self.md_renderer.render_markdown("")
-            self.md_editor.document().setModified(False)
-            self.setWindowModified(False)
-            self.setWindowTitle("Markdown Wiki[*]")
+            # data corruption. The previous setPlainText set the document as modified
+            # and it could cause saving contents in other files.
+            self._reset_state()
             self.status_bar.showMessage(f"Could not open {file_path}.")
             QMessageBox.critical(self, "Error", f"Failed to open file: {str(e)}")
         else:
@@ -363,6 +359,15 @@ class MarkdownWiki(QMainWindow):
             return True
         else:  # Cancel
             return False
+
+    def _reset_state(self):
+        """Cleans current_file, widgets and window modified state."""
+        self.current_file = None
+        self.md_editor.setPlainText("")
+        self.md_renderer.render_markdown("")
+        self.md_editor.document().setModified(False)
+        self.setWindowModified(False)
+        self.setWindowTitle("Markdown Wiki[*]")
 
     def closeEvent(self, event):
         """Handle application closing"""
